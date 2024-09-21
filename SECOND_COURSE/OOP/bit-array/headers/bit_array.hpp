@@ -64,6 +64,7 @@ namespace bits
     friend bit_array operator & (const bit_array &, const bit_array &);
     friend bit_array operator | (const bit_array &, const bit_array &);
     friend bit_array operator ^ (const bit_array &, const bit_array &);
+    friend bit_array operator ~ () const;
     // TODO: friend bit_array operator << (std::int32_t) const;
     // TODO: friend bit_array operator >> (std::int32_t) const;
  

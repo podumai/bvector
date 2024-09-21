@@ -38,8 +38,8 @@ namespace bits
       if (value)
       {
         std::memcpy(this->storage,
-            &value,
-            tmp_capacity >= INT64_SIZE ? INT64_SIZE : tmp_capacity);
+                    &value,
+                    tmp_capacity >= INT64_SIZE ? INT64_SIZE : tmp_capacity);
 
       }
 
@@ -124,9 +124,8 @@ namespace bits
       return;
     }
 
-    std::int32_t tmp_capacity { this->storage_size / BYTE };
-
-    if (this->storage_size % BYTE) { ++tmp_capacity; }
+    std::int32_t tmp_capacity { this->storage_size / BYTE +
+                               (this->storage_size % BYTE ? 1 : 0) };
 
     if (tmp_capacity < this->storage_capacity)
     {
@@ -525,6 +524,18 @@ namespace bits
     }
 
     return tmp_obj;
+  }
+
+  bit_array bit_array::operator ~ () const
+  {
+    bit_array temp (this->storage_size);
+
+    for (std::int32_t i {}; i < this->storage_capacity; ++i)
+    {
+      temp.storage[i] = ~this->storage[i];
+    }
+
+    return temp;
   }
 
 }

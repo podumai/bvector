@@ -6,9 +6,8 @@ project (bit-array
 
 include_directories ("headers/")
 
-set (SOURCE_EXE main.cpp)
-set (BIT_ARR_LIB bit_array.cpp)
-set (HEAP_ALLOC_LIB mem_alloc.cpp)
+set (SOURCE_EXE source/main.cpp)
+set (BIT_ARR_LIB source/bit_array.cpp)
 
 add_library (bit_array STATIC ${BIT_ARR_LIB})
 add_executable (main ${SOURCE_EXE})
