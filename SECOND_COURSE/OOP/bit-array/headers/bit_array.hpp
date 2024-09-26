@@ -38,11 +38,11 @@ namespace bits
     // TODO: void push_back(bool);
     bool pop_back();
     bit_array &set(std::int32_t, bool = true);
-    bit_array &set()   noexcept;
+    bit_array &set();
     bit_array &reset(std::int32_t);
-    bit_array &reset() noexcept;
+    bit_array &reset();
     bit_array &flip(std::int32_t);
-    bit_array &flip()  noexcept;
+    bit_array &flip();
     void swap(bit_array &);
     
     // Element access
@@ -64,7 +64,7 @@ namespace bits
     friend bit_array operator & (const bit_array &, const bit_array &);
     friend bit_array operator | (const bit_array &, const bit_array &);
     friend bit_array operator ^ (const bit_array &, const bit_array &);
-    friend bit_array operator ~ () const;
+    friend bit_array operator ~ (const bit_array &);
     // TODO: friend bit_array operator << (std::int32_t) const;
     // TODO: friend bit_array operator >> (std::int32_t) const;
  

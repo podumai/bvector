@@ -54,17 +54,17 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/podumai/Coding/c++-programming/bit_array
+CMAKE_SOURCE_DIR = /home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/podumai/Coding/c++-programming/bit_array
+CMAKE_BINARY_DIR = /home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array
 
 #=============================================================================
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/bit_array.dir/all
-all: CMakeFiles/main.dir/all
+all: CMakeFiles/BIT_ARRAY_LIB.dir/all
+all: CMakeFiles/MAIN.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -72,61 +72,61 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/bit_array.dir/clean
-clean: CMakeFiles/main.dir/clean
+clean: CMakeFiles/BIT_ARRAY_LIB.dir/clean
+clean: CMakeFiles/MAIN.dir/clean
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/bit_array.dir
+# Target rules for target CMakeFiles/BIT_ARRAY_LIB.dir
 
 # All Build rule for target.
-CMakeFiles/bit_array.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/bit_array.dir/build.make CMakeFiles/bit_array.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/bit_array.dir/build.make CMakeFiles/bit_array.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/podumai/Coding/c++-programming/bit_array/CMakeFiles --progress-num=1,2 "Built target bit_array"
-.PHONY : CMakeFiles/bit_array.dir/all
+CMakeFiles/BIT_ARRAY_LIB.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BIT_ARRAY_LIB.dir/build.make CMakeFiles/BIT_ARRAY_LIB.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BIT_ARRAY_LIB.dir/build.make CMakeFiles/BIT_ARRAY_LIB.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array/CMakeFiles --progress-num=1,2 "Built target BIT_ARRAY_LIB"
+.PHONY : CMakeFiles/BIT_ARRAY_LIB.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/bit_array.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/podumai/Coding/c++-programming/bit_array/CMakeFiles 2
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/bit_array.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/podumai/Coding/c++-programming/bit_array/CMakeFiles 0
-.PHONY : CMakeFiles/bit_array.dir/rule
+CMakeFiles/BIT_ARRAY_LIB.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/BIT_ARRAY_LIB.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array/CMakeFiles 0
+.PHONY : CMakeFiles/BIT_ARRAY_LIB.dir/rule
 
 # Convenience name for target.
-bit_array: CMakeFiles/bit_array.dir/rule
-.PHONY : bit_array
+BIT_ARRAY_LIB: CMakeFiles/BIT_ARRAY_LIB.dir/rule
+.PHONY : BIT_ARRAY_LIB
 
 # clean rule for target.
-CMakeFiles/bit_array.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/bit_array.dir/build.make CMakeFiles/bit_array.dir/clean
-.PHONY : CMakeFiles/bit_array.dir/clean
+CMakeFiles/BIT_ARRAY_LIB.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BIT_ARRAY_LIB.dir/build.make CMakeFiles/BIT_ARRAY_LIB.dir/clean
+.PHONY : CMakeFiles/BIT_ARRAY_LIB.dir/clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/main.dir
+# Target rules for target CMakeFiles/MAIN.dir
 
 # All Build rule for target.
-CMakeFiles/main.dir/all: CMakeFiles/bit_array.dir/all
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/podumai/Coding/c++-programming/bit_array/CMakeFiles --progress-num=3,4 "Built target main"
-.PHONY : CMakeFiles/main.dir/all
+CMakeFiles/MAIN.dir/all: CMakeFiles/BIT_ARRAY_LIB.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MAIN.dir/build.make CMakeFiles/MAIN.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MAIN.dir/build.make CMakeFiles/MAIN.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array/CMakeFiles --progress-num=3,4 "Built target MAIN"
+.PHONY : CMakeFiles/MAIN.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/main.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/podumai/Coding/c++-programming/bit_array/CMakeFiles 4
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/main.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/podumai/Coding/c++-programming/bit_array/CMakeFiles 0
-.PHONY : CMakeFiles/main.dir/rule
+CMakeFiles/MAIN.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array/CMakeFiles 4
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/MAIN.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array/CMakeFiles 0
+.PHONY : CMakeFiles/MAIN.dir/rule
 
 # Convenience name for target.
-main: CMakeFiles/main.dir/rule
-.PHONY : main
+MAIN: CMakeFiles/MAIN.dir/rule
+.PHONY : MAIN
 
 # clean rule for target.
-CMakeFiles/main.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/clean
-.PHONY : CMakeFiles/main.dir/clean
+CMakeFiles/MAIN.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MAIN.dir/build.make CMakeFiles/MAIN.dir/clean
+.PHONY : CMakeFiles/MAIN.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

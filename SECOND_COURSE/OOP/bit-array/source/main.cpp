@@ -8,16 +8,13 @@ std::int32_t main()
   std::cout.setf(std::ios::boolalpha);
   try
   {
-    bits::bit_array test1 (12, 0xFF);
-    bits::bit_array test2 (~test1);
-    std::cout << "Printing test1...\n"
-              << test1.to_string() << std::endl
-              << "Printing test2...\n"
-              << test2.to_string() << std::endl;
+    bits::bit_array temp (10);
+    temp.set(3, true);
+    std::cout << temp.to_string() << ' ' << temp.count() << std::endl;
   }
   catch (std::out_of_range &err)
   {
-    std::cout << "Catched error: " << err.what() << std::endl;
+    std::cerr << "Catched an error: " << err.what() << std::endl;
   }
 
   return 0;

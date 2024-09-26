@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include "bit_array.hpp"
 
-#define BYTE              8
+#define BITS_PER_BYTE     8
 #define BIT_MASK_TEMPLATE 0xFF
 #define BIT_MASK_INDEX    0x1
 #define INT64_SIZE        8
@@ -23,12 +23,13 @@ namespace bits
     {
       throw std::length_error ("Invalid number of bits");
     }
-    else if (!num_bits)
+    else if (num_bits == 0)
     {
       return;
     }
 
-    std::int32_t tmp_capacity { num_bits / BYTE + (num_bits % BYTE ? 1 : 0) };
+    std::int32_t tmp_capacity { num_bits / BITS_PER_BYTE +
+                                (num_bits % BITS_PER_BYTE ? 1 : 0) };
 
     try
     {
@@ -101,7 +102,7 @@ namespace bits
 
     for (std::int32_t i {}; i < this->storage_capacity; ++i)
     {
-      for (std::int8_t j {}; j < BYTE; ++j)
+      for (std::int8_t j {}; j < BITS_PER_BYTE; ++j)
       {
         if (this->storage[i] & (BIT_MASK_INDEX << j)) { ++bit_count; }
       }
@@ -124,8 +125,8 @@ namespace bits
       return;
     }
 
-    std::int32_t tmp_capacity { this->storage_size / BYTE +
-                               (this->storage_size % BYTE ? 1 : 0) };
+    std::int32_t tmp_capacity { this->storage_size / BITS_PER_BYTE +
+                               (this->storage_size % BITS_PER_BYTE ? 1 : 0) };
 
     if (tmp_capacity < this->storage_capacity)
     {
@@ -150,7 +151,7 @@ namespace bits
   {
     for (std::int32_t i {}; i < this->storage_capacity; ++i)
     {
-      if (this->storage[i / BYTE] & BIT_MASK_TEMPLATE) { return true; }
+      if (this->storage[i / BITS_PER_BYTE] & BIT_MASK_TEMPLATE) { return true; }
     }
 
     return false;
@@ -160,7 +161,10 @@ namespace bits
   {
     for (std::int32_t i {}; i < this->storage_capacity; ++i)
     {
-      if (this->storage[i / BYTE] & BIT_MASK_TEMPLATE) { return false; }
+      if (this->storage[i / BITS_PER_BYTE] & BIT_MASK_TEMPLATE)
+      {
+        return false;
+      }
     }
 
     return true;
@@ -179,8 +183,8 @@ namespace bits
       throw std::out_of_range ("Invalid storage size");
     }
 
-    return this->storage[(this->storage_size - 1) / BYTE] &
-           (BIT_MASK_INDEX << --this->storage_size % BYTE);
+    return this->storage[(this->storage_size - 1) / BITS_PER_BYTE] &
+           (BIT_MASK_INDEX << --this->storage_size % BITS_PER_BYTE);
   }
  
   void bit_array::resize(std::int32_t num_bits, bool value)
@@ -201,9 +205,8 @@ namespace bits
       return;
     }
 
-    std::int32_t tmp_capacity { num_bits / BYTE };
-
-    if (num_bits % BYTE) { ++tmp_capacity; }
+    std::int32_t tmp_capacity { num_bits / BITS_PER_BYTE +
+                                (num_bits % BITS_PER_BYTE ? 1 : 0)};
     
     try
     {
@@ -219,7 +222,7 @@ namespace bits
 
         this->storage = tmp_ptr;
         this->storage_size = std::min(this->storage_size,
-            (this->storage_capacity - tmp_capacity) * BYTE);
+            (this->storage_capacity - tmp_capacity) * BITS_PER_BYTE);
         this->storage_capacity = tmp_capacity;
       }
       else if (tmp_capacity > this->storage_capacity)
@@ -231,8 +234,8 @@ namespace bits
         }
 
         if (value) { std::memset(tmp_ptr,
-            0xFF,
-            tmp_capacity - this->storage_capacity); }
+                                    0xFF,
+                     tmp_capacity - this->storage_capacity); }
 
         this->storage = tmp_ptr;
         this->storage_capacity = tmp_capacity;
@@ -252,28 +255,33 @@ namespace bits
     }
     else if (this->storage == nullptr)
     {
-      return *this;
+      throw std::length_error ("Invalid storage pointer (nullptr)");
     }
+
+    std::int32_t index_position { index / BITS_PER_BYTE };
 
     if (value)
     {
-      this->storage[index / BYTE] |= (BIT_MASK_INDEX << index % BYTE);
+      this->storage[index_position] |= (BIT_MASK_INDEX << index % BITS_PER_BYTE);
     }
     else
     {
-      this->storage[index / BYTE] &= ~(this->storage[index / BYTE]
-                                  & (BIT_MASK_INDEX << index % BYTE));
+      this->storage[index_position] &= ~(this->storage[index_position]
+                                  & (BIT_MASK_INDEX << index % BITS_PER_BYTE));
     }
 
     return *this;
   }
 
-  bit_array &bit_array::set() noexcept
+  bit_array &bit_array::set()
   {
-    if (this->storage == nullptr) { return *this; }
+    if (this->storage == nullptr)
+    {
+      throw std::length_error ("Invalid storage pointer (nullptr)");
+    }
 
-    std::memset(this->storage, 0xFF, this->storage_size / BYTE +
-               (this->storage_size % BYTE ? 1 : 0));
+    std::memset(this->storage, 0xFF, this->storage_size / BITS_PER_BYTE +
+               (this->storage_size % BITS_PER_BYTE ? 1 : 0));
     return *this;
   }
   
@@ -285,20 +293,24 @@ namespace bits
     }
     else if (this->storage == nullptr)
     {
-      return *this;
+      throw std::length_error ("Invalid storage pointer (nullptr)");
     }
-
-    this->storage[index / BYTE] &= ~(this->storage[index / BYTE]
-                                & (BIT_MASK_INDEX << index % BYTE));
+    
+    std::int32_t index_position { index / BITS_PER_BYTE };
+    this->storage[index_position] &= ~(this->storage[index_position]
+                                  & (BIT_MASK_INDEX << index % BITS_PER_BYTE));
     return *this;
   }
 
-  bit_array &bit_array::reset() noexcept
+  bit_array &bit_array::reset()
   {
-    if (this->storage == nullptr) { return *this; }
+    if (this->storage == nullptr)
+    {
+      throw std::length_error ("Invalid storage pointer (nullptr)");
+    }
 
-    std::memset(this->storage, 0, this->storage_size / BYTE +
-               (this->storage_size % BYTE ? 1 : 0));
+    std::memset(this->storage, 0, this->storage_size / BITS_PER_BYTE +
+               (this->storage_size % BITS_PER_BYTE ? 1 : 0));
     return *this;
   }
 
@@ -310,19 +322,23 @@ namespace bits
     }
     else if (this->storage == nullptr)
     {
-      return *this;
+      throw std::length_error ("Invalid storage pointer (nullptr)");
     }
 
-    this->storage[index / BYTE] ^= (BIT_MASK_INDEX << index % BYTE);
+    std::int32_t index_position { index / BITS_PER_BYTE };
+    this->storage[index_position] ^= (BIT_MASK_INDEX << index % BITS_PER_BYTE);
     return *this;
   }
 
-  bit_array &bit_array::flip() noexcept
+  bit_array &bit_array::flip()
   {
-    if (this->storage == nullptr) { return *this; }
+    if (this->storage == nullptr)
+    {
+      throw std::length_error ("Invalid storage pointer (nullptr)");
+    }
 
-    std::int32_t actual_capacity { this->storage_size / BYTE +
-                                   this->storage_size % BYTE };
+    std::int32_t actual_capacity { this->storage_size / BITS_PER_BYTE +
+                                   this->storage_size % BITS_PER_BYTE };
 
     for (std::int32_t i {}; i < actual_capacity; ++i)
     {
@@ -354,7 +370,8 @@ namespace bits
 
   bool bit_array::operator [] (std::int32_t index) const noexcept
   {
-    return this->storage[index / BYTE] & (BIT_MASK_INDEX << (index % BYTE));
+    return this->storage[index / BITS_PER_BYTE] &
+           (BIT_MASK_INDEX << (index % BITS_PER_BYTE));
   }
 
   bool bit_array::front() const
@@ -374,8 +391,8 @@ namespace bits
       throw std::out_of_range ("Invalid storage pointer (nullptr)");
     }
 
-    return this->storage[(this->storage_size - 1) / BYTE] &
-           (BIT_MASK_INDEX << (this->storage_size - 1) % BYTE);
+    return this->storage[(this->storage_size - 1) / BITS_PER_BYTE] &
+           (BIT_MASK_INDEX << (this->storage_size - 1) % BITS_PER_BYTE);
   }
 
   bool bit_array::at(std::int32_t index) const
@@ -385,7 +402,8 @@ namespace bits
       throw std::out_of_range ("Index is out of range");
     }
 
-    return this->storage[index / BYTE] & (BIT_MASK_INDEX << (index % BYTE));
+    return this->storage[index / BITS_PER_BYTE] &
+           (BIT_MASK_INDEX << (index % BITS_PER_BYTE));
   }
 
   bit_array &bit_array::operator = (const bit_array &obj)
@@ -452,7 +470,7 @@ namespace bits
   {
     std::string storage_binary;
 
-    for (std::int32_t i { this->storage_size - 1}; i >= 0; --i)
+    for (std::int32_t i {}; i < this->storage_size; ++i)
     {
       if ((*this)[i]) { storage_binary.push_back('1'); }
       else { storage_binary.push_back('0'); }
@@ -526,13 +544,13 @@ namespace bits
     return tmp_obj;
   }
 
-  bit_array bit_array::operator ~ () const
+  bit_array operator ~ (const bit_array &obj)
   {
-    bit_array temp (this->storage_size);
+    bit_array temp (obj.storage_size);
 
-    for (std::int32_t i {}; i < this->storage_capacity; ++i)
+    for (std::int32_t i {}; i < obj.storage_capacity; ++i)
     {
-      temp.storage[i] = ~this->storage[i];
+      temp.storage[i] = ~obj.storage[i];
     }
 
     return temp;

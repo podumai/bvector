@@ -1,2 +1,0 @@
-/usr/bin/ar qc libmem_alloc.a CMakeFiles/mem_alloc.dir/mem_alloc.cpp.o
-/usr/bin/ranlib libmem_alloc.a

@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/podumai/Coding/c++-programming/bit_array
+CMAKE_SOURCE_DIR = /home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/podumai/Coding/c++-programming/bit_array
+CMAKE_BINARY_DIR = /home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/podumai/Coding/c++-programming/bit_array/CMakeFiles /home/podumai/Coding/c++-programming/bit_array//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array/CMakeFiles /home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/podumai/Coding/c++-programming/bit_array/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -117,78 +117,78 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named bit_array
+# Target rules for targets named BIT_ARRAY_LIB
 
 # Build rule for target.
-bit_array: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 bit_array
-.PHONY : bit_array
+BIT_ARRAY_LIB: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 BIT_ARRAY_LIB
+.PHONY : BIT_ARRAY_LIB
 
 # fast build rule for target.
-bit_array/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/bit_array.dir/build.make CMakeFiles/bit_array.dir/build
-.PHONY : bit_array/fast
+BIT_ARRAY_LIB/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BIT_ARRAY_LIB.dir/build.make CMakeFiles/BIT_ARRAY_LIB.dir/build
+.PHONY : BIT_ARRAY_LIB/fast
 
 #=============================================================================
-# Target rules for targets named main
+# Target rules for targets named MAIN
 
 # Build rule for target.
-main: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 main
-.PHONY : main
+MAIN: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 MAIN
+.PHONY : MAIN
 
 # fast build rule for target.
-main/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
-.PHONY : main/fast
+MAIN/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MAIN.dir/build.make CMakeFiles/MAIN.dir/build
+.PHONY : MAIN/fast
 
-bit_array.o: bit_array.cpp.o
-.PHONY : bit_array.o
-
-# target to build an object file
-bit_array.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/bit_array.dir/build.make CMakeFiles/bit_array.dir/bit_array.cpp.o
-.PHONY : bit_array.cpp.o
-
-bit_array.i: bit_array.cpp.i
-.PHONY : bit_array.i
-
-# target to preprocess a source file
-bit_array.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/bit_array.dir/build.make CMakeFiles/bit_array.dir/bit_array.cpp.i
-.PHONY : bit_array.cpp.i
-
-bit_array.s: bit_array.cpp.s
-.PHONY : bit_array.s
-
-# target to generate assembly for a file
-bit_array.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/bit_array.dir/build.make CMakeFiles/bit_array.dir/bit_array.cpp.s
-.PHONY : bit_array.cpp.s
-
-main.o: main.cpp.o
-.PHONY : main.o
+source/bit_array.o: source/bit_array.cpp.o
+.PHONY : source/bit_array.o
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main.cpp.o
-.PHONY : main.cpp.o
+source/bit_array.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BIT_ARRAY_LIB.dir/build.make CMakeFiles/BIT_ARRAY_LIB.dir/source/bit_array.cpp.o
+.PHONY : source/bit_array.cpp.o
 
-main.i: main.cpp.i
-.PHONY : main.i
+source/bit_array.i: source/bit_array.cpp.i
+.PHONY : source/bit_array.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main.cpp.i
-.PHONY : main.cpp.i
+source/bit_array.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BIT_ARRAY_LIB.dir/build.make CMakeFiles/BIT_ARRAY_LIB.dir/source/bit_array.cpp.i
+.PHONY : source/bit_array.cpp.i
 
-main.s: main.cpp.s
-.PHONY : main.s
+source/bit_array.s: source/bit_array.cpp.s
+.PHONY : source/bit_array.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main.cpp.s
-.PHONY : main.cpp.s
+source/bit_array.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BIT_ARRAY_LIB.dir/build.make CMakeFiles/BIT_ARRAY_LIB.dir/source/bit_array.cpp.s
+.PHONY : source/bit_array.cpp.s
+
+source/main.o: source/main.cpp.o
+.PHONY : source/main.o
+
+# target to build an object file
+source/main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MAIN.dir/build.make CMakeFiles/MAIN.dir/source/main.cpp.o
+.PHONY : source/main.cpp.o
+
+source/main.i: source/main.cpp.i
+.PHONY : source/main.i
+
+# target to preprocess a source file
+source/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MAIN.dir/build.make CMakeFiles/MAIN.dir/source/main.cpp.i
+.PHONY : source/main.cpp.i
+
+source/main.s: source/main.cpp.s
+.PHONY : source/main.s
+
+# target to generate assembly for a file
+source/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MAIN.dir/build.make CMakeFiles/MAIN.dir/source/main.cpp.s
+.PHONY : source/main.cpp.s
 
 # Help Target
 help:
@@ -198,14 +198,14 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... bit_array"
-	@echo "... main"
-	@echo "... bit_array.o"
-	@echo "... bit_array.i"
-	@echo "... bit_array.s"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... BIT_ARRAY_LIB"
+	@echo "... MAIN"
+	@echo "... source/bit_array.o"
+	@echo "... source/bit_array.i"
+	@echo "... source/bit_array.s"
+	@echo "... source/main.o"
+	@echo "... source/main.i"
+	@echo "... source/main.s"
 .PHONY : help
 
 
