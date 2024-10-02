@@ -44,6 +44,5 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/BIT_ARRAY_LIB.dir/DependInfo.cmake"
   "CMakeFiles/MAIN.dir/DependInfo.cmake"
   )

@@ -117,19 +117,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named BIT_ARRAY_LIB
-
-# Build rule for target.
-BIT_ARRAY_LIB: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 BIT_ARRAY_LIB
-.PHONY : BIT_ARRAY_LIB
-
-# fast build rule for target.
-BIT_ARRAY_LIB/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BIT_ARRAY_LIB.dir/build.make CMakeFiles/BIT_ARRAY_LIB.dir/build
-.PHONY : BIT_ARRAY_LIB/fast
-
-#=============================================================================
 # Target rules for targets named MAIN
 
 # Build rule for target.
@@ -141,30 +128,6 @@ MAIN: cmake_check_build_system
 MAIN/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MAIN.dir/build.make CMakeFiles/MAIN.dir/build
 .PHONY : MAIN/fast
-
-source/bit_array.o: source/bit_array.cpp.o
-.PHONY : source/bit_array.o
-
-# target to build an object file
-source/bit_array.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BIT_ARRAY_LIB.dir/build.make CMakeFiles/BIT_ARRAY_LIB.dir/source/bit_array.cpp.o
-.PHONY : source/bit_array.cpp.o
-
-source/bit_array.i: source/bit_array.cpp.i
-.PHONY : source/bit_array.i
-
-# target to preprocess a source file
-source/bit_array.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BIT_ARRAY_LIB.dir/build.make CMakeFiles/BIT_ARRAY_LIB.dir/source/bit_array.cpp.i
-.PHONY : source/bit_array.cpp.i
-
-source/bit_array.s: source/bit_array.cpp.s
-.PHONY : source/bit_array.s
-
-# target to generate assembly for a file
-source/bit_array.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BIT_ARRAY_LIB.dir/build.make CMakeFiles/BIT_ARRAY_LIB.dir/source/bit_array.cpp.s
-.PHONY : source/bit_array.cpp.s
 
 source/main.o: source/main.cpp.o
 .PHONY : source/main.o
@@ -198,11 +161,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... BIT_ARRAY_LIB"
 	@echo "... MAIN"
-	@echo "... source/bit_array.o"
-	@echo "... source/bit_array.i"
-	@echo "... source/bit_array.s"
 	@echo "... source/main.o"
 	@echo "... source/main.i"
 	@echo "... source/main.s"

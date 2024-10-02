@@ -1,1 +1,1 @@
-/usr/bin/c++ CMakeFiles/MAIN.dir/source/main.cpp.o -o MAIN  libBIT_ARRAY_LIB.a 
+/usr/bin/c++ CMakeFiles/MAIN.dir/source/main.cpp.o -o MAIN 

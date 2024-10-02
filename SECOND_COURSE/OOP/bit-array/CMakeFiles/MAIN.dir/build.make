@@ -92,7 +92,6 @@ MAIN_EXTERNAL_OBJECTS =
 
 MAIN: CMakeFiles/MAIN.dir/source/main.cpp.o
 MAIN: CMakeFiles/MAIN.dir/build.make
-MAIN: libBIT_ARRAY_LIB.a
 MAIN: CMakeFiles/MAIN.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable MAIN"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/MAIN.dir/link.txt --verbose=$(VERBOSE)
