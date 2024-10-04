@@ -10,13 +10,13 @@ add_compile_options(
   -Wpedantic
 
   -Wcast-align
-  -Wcast-equal
   -Wconversion
-  -Wctor-dctor-privacy
   -Wold-style-cast
   -Wredundant-decls
   -Wsign-conversion
   -Wsign-promo
+
+  -std=c++20
 )
 
 if (NOT CMAKE_CXX_EXTENSIONS)
@@ -24,6 +24,5 @@ if (NOT CMAKE_CXX_EXTENSIONS)
 endif ()
 
 set(SOURCE_EXE source/main.cpp)
-target_compile_features(SOURCE_EXE cxx_std_20)
 
 add_executable(MAIN ${SOURCE_EXE})

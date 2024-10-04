@@ -1,0 +1,3 @@
+/home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array/CMakeFiles/MAIN.dir
+/home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array/CMakeFiles/edit_cache.dir
+/home/podumai/Coding/NSU/SECOND_COURSE/OOP/bit-array/CMakeFiles/rebuild_cache.dir
