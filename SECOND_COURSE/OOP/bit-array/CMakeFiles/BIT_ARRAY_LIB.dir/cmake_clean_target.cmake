@@ -1,3 +1,0 @@
-file(REMOVE_RECURSE
-  "libBIT_ARRAY_LIB.a"
-)
