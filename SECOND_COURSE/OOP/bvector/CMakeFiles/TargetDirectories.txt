@@ -1,0 +1,3 @@
+/home/podumai/Coding/NSU/SECOND_COURSE/OOP/bvector/CMakeFiles/MAIN.dir
+/home/podumai/Coding/NSU/SECOND_COURSE/OOP/bvector/CMakeFiles/edit_cache.dir
+/home/podumai/Coding/NSU/SECOND_COURSE/OOP/bvector/CMakeFiles/rebuild_cache.dir
