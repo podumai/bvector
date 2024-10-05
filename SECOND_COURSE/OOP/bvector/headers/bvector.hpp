@@ -1,9 +1,6 @@
 #ifndef __BITS_BVECTOR_H__
 #define __BITS_BVECTOR_H__
 
-#define _BITS_BVECTOR_MAX_SIZE_     0x2000000000
-#define _BITS_BVECTOR_MAX_CAPACITY_ 0x400000000
-
 #include <cinttypes>
 #include <cstdlib>
 #include <cstring>
@@ -11,6 +8,16 @@
 #include <string>
 #include <new>
 #include <memory>
+
+#if __WORDSIZE == 64
+#define _BITS_BVECTOR_MAX_SIZE_      0x2000000000
+#define _BITS_BVECTOR_MAX_CAPACITY_  0x400000000
+#define _BITS_BVECTOR_MID_CAPACITY_  0x100000000
+#else
+#define _BITS_BVECTOR_MAX_SIZE_     0x1fffffff
+#define _BITS_BVECTOR_MAX_CAPACITY_ 0x4000000
+#define _BITS_BVECTOR_MID_CAPACITY_ 0x1000000
+#endif
 
 namespace bits
 {
@@ -40,7 +47,7 @@ namespace bits
       }
 
       try { this->storage = this->umalloc.allocate(this->bytes); }
-      catch (std::bad_alloc) { throw; }
+      catch (std::bad_alloc &error) { throw; }
 
       if (value)
       {
@@ -57,7 +64,7 @@ namespace bits
         this->storage = this->umalloc.allocate(this->bytes);
         (void) std::memcpy(this->storage, other.storage, this->bytes);
       }
-      catch (std::bad_alloc) { throw; }
+      catch (std::bad_alloc &error) { throw; }
     }
 
     bvector(bvector &&rvalue) noexcept : storage (rvalue.storage),
@@ -91,7 +98,7 @@ namespace bits
 
       size_type tmp_bytes { this->bits >> 3 };
       size_type bit_count {};
-      byte_type byte;
+      size_type byte;
 
       for (size_type i {}; i < tmp_bytes; ++i)
       {
@@ -117,8 +124,8 @@ namespace bits
       if (this->storage == nullptr) { return; }
       else if (this->bits == 0) { this->clear(); return; }
 
-      const size_type tmp_capacity { (this->bits >> 3) +
-                                     (this->bits & 0b00000111 ? 1 : 0) };
+      const size_type tmp_capacity
+      { (this->bits >> 3) + (this->bits & 0b00000111 ? 1 : 0) };
 
       if (tmp_capacity < this->bytes)
       {
@@ -132,7 +139,7 @@ namespace bits
           this->storage = tmp_storage;
           this->bytes = tmp_capacity;
         }
-        catch (std::bad_alloc &no_memory) { throw; }
+        catch (std::bad_alloc &error) { throw; }
       }
     }
 
@@ -191,8 +198,8 @@ namespace bits
       if (num_bits == 0) { this->clear(); return; }
       else if (num_bits == this->bits) { return; }
 
-      const size_type tmp_capacity { (num_bits >> 3) +
-                                     (num_bits & 0b00000111 ? 1 : 0)};
+      const size_type tmp_capacity
+      { (num_bits >> 3) + (num_bits & 0b00000111 ? 1 : 0) };
 
       try
       {
@@ -208,7 +215,7 @@ namespace bits
 
         this->storage = tmp_storage;
       }
-      catch (std::bad_alloc) { throw; }
+      catch (std::bad_alloc &error) { throw; }
 
       if (tmp_capacity > this->bytes && value)
       {
@@ -232,7 +239,7 @@ namespace bits
         return;
       }
 
-      size_type tmp_capacity { (this->bytes + num_bytes)/* & 0x7ffffff*/ };
+      size_type tmp_capacity { this->bytes + num_bytes };
 
       if (tmp_capacity > this->bytes)
       {
@@ -249,7 +256,7 @@ namespace bits
           this->storage = tmp_storage;
           this->bytes = tmp_capacity;
         }
-        catch (std::bad_alloc &error) { throw error; }
+        catch (std::bad_alloc &error) { throw; }
       }
     }
 
@@ -273,7 +280,7 @@ namespace bits
           }
 
           try { this->reserve(tmp_capacity); }
-          catch (std::bad_alloc &error) { throw error; }
+          catch (std::bad_alloc &error) { throw; }
         }
 
         if (value)
@@ -321,7 +328,7 @@ namespace bits
       else
       {
         try { this->reserve(1); }
-        catch (std::bad_alloc &error) { throw error; }
+        catch (std::bad_alloc &error) { throw; }
         
         if (value) { this->storage[0] |= 0b10000000; }
         ++this->bits;
@@ -493,7 +500,7 @@ namespace bits
           this->umalloc.deallocate(this->storage, this->bytes);
 
           try { this->storage = umalloc.allocate(other.bytes); }
-          catch (std::bad_alloc &err) { throw; }
+          catch (std::bad_alloc &error) { throw; }
         }
 
         (void) std::memcpy(this->storage, other.storage, other.bytes);
@@ -506,6 +513,12 @@ namespace bits
 
     bvector &operator = (bvector &&rvalue)
     {
+      if (this->storage)
+      {
+        this->umalloc(this->storage, this->bytes);
+        this->storage = nullptr;
+      }
+
       std::swap(this->storage, rvalue.storage);
       this->bits = rvalue.bits;
       this->bytes = rvalue.bytes;
@@ -570,7 +583,7 @@ namespace bits
 
         return temp;
       }
-      catch (std::bad_alloc) { throw; }
+      catch (std::bad_alloc  &error) { throw; }
     }
 
     /*bvector &operator <<= (i32 shift)
@@ -594,7 +607,7 @@ namespace bits
       std::string storage_binary;
       
       try { storage_binary.reserve(this->bits); }
-      catch (std::bad_alloc) { throw; }
+      catch (std::bad_alloc &error) { throw; }
 
       for (size_type i {}; i < this->bits; ++i)
       {
@@ -645,7 +658,7 @@ bits::bvector<allocator_type> operator & (const bits::bvector<allocator_type> &l
     return tmp_obj &= rhs;
   }
   catch (std::invalid_argument &incorrect_size) { throw; }
-  catch (std::bad_alloc &no_memory) { throw; }
+  catch (std::bad_alloc &error) { throw; }
 }
 
 template<class allocator_type = std::allocator<std::uint8_t>>
@@ -658,7 +671,7 @@ bits::bvector<allocator_type> operator | (const bits::bvector<allocator_type> &l
     return tmp_obj |= rhs;
   }
   catch (std::invalid_argument &incorrect_size) { throw; }
-  catch (std::bad_alloc &no_memory) { throw; }
+  catch (std::bad_alloc &error) { throw; }
 }
 
 template<class allocator_type = std::allocator<std::uint8_t>>
@@ -671,7 +684,7 @@ bits::bvector<allocator_type> operator ^ (const bits::bvector<allocator_type> &l
     return tmp_obj ^= rhs;
   }
   catch (std::invalid_argument &incorrect_size) { throw; }
-  catch (std::bad_alloc &no_memory) { throw; }
+  catch (std::bad_alloc &error) { throw; }
 }
 
 #endif
