@@ -7,20 +7,18 @@
 std::int32_t main()
 {
   std::cout.setf(std::ios::boolalpha);
-  bits::bvector test;
-  const std::size_t var { _BITS_BVECTOR_MAX_SIZE_ >> 3 };
-  //std::cout << var << std::endl;
-  //test.reserve(_BITS_BVECTOR_MAX_CAPACITY_ >> 3);
-  //std::vector<bool> test;
-  //test.resize(UINT32_MAX, false);
-  std::cout << var << std::endl;
-  //test.reserve(_BITS_BVECTOR_MAX_CAPACITY_ >> 4);
-  for (std::size_t i {}; i < var; ++i)
+  bits::bvector test1;
+  size_t size { __BITS_BVECTOR_MAX_SIZE__ >> 2 };
+  std::cout << size << ' ' << __BITS_BVECTOR_MAX_SIZE__ << std::endl;
+  /*for (size_t i {}; i < size; ++i)
   {
-    test.push_back(true);
-  }
-  std::cout << test.count() << std::endl;
-  //std::cout << _WORD_LEN_ << std::endl;
+    test1.push_back(true);
+  }*/
+  test1.resize(size, true);
+  //std::vector<bool> test1;
+  //test1.resize(size, true);
+  //std::cout << (test1.count() == size) << std::endl;
+  //test1.resize(INT32_MAX, true); test2.resize(INT32_MAX, true);
 
   return 0;
 }

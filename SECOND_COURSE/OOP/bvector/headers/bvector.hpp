@@ -1,5 +1,5 @@
 #ifndef __BITS_BVECTOR_H__
-#define __BITS_BVECTOR_H__
+#define __BITS_BVECTOR_H__ 1
 
 #include <cinttypes>
 #include <cstdlib>
@@ -8,15 +8,16 @@
 #include <string>
 #include <new>
 #include <memory>
+#include "bvector_imp.hpp"
 
 #if __WORDSIZE == 64
-#define _BITS_BVECTOR_MAX_SIZE_      0x2000000000
-#define _BITS_BVECTOR_MAX_CAPACITY_  0x400000000
-#define _BITS_BVECTOR_MID_CAPACITY_  0x100000000
+#define __BITS_BVECTOR_MAX_SIZE__      0x2000000000
+#define __BITS_BVECTOR_MAX_CAPACITY__  0x400000000
+#define __BITS_BVECTOR_MID_CAPACITY__  0x100000000
 #else
-#define _BITS_BVECTOR_MAX_SIZE_     0x1fffffff
-#define _BITS_BVECTOR_MAX_CAPACITY_ 0x4000000
-#define _BITS_BVECTOR_MID_CAPACITY_ 0x1000000
+#define __BITS_BVECTOR_MAX_SIZE__     0x1fffffff
+#define __BITS_BVECTOR_MAX_CAPACITY__ 0x4000000
+#define __BITS_BVECTOR_MID_CAPACITY__ 0x1000000
 #endif
 
 namespace bits
@@ -39,9 +40,9 @@ namespace bits
     constexpr bvector() : storage (nullptr), bits (0), bytes (0) {}
 
     constexpr explicit bvector(size_type num_bits, i64 value = 0) : bits (num_bits),
-    bytes ((num_bits >> 3) + (num_bits & 0b00000111 ? 1 : 0))
+    bytes (calculate_capacity(num_bits))
     {
-      if (this->bits > _BITS_BVECTOR_MAX_SIZE_)
+      if (this->bits > __BITS_BVECTOR_MAX_SIZE__)
       {
         throw std::invalid_argument ("bvector:bvector(size_type, i64) -> invalid number of bits");
       }
@@ -71,6 +72,7 @@ namespace bits
     bits (rvalue.bits), bytes (rvalue.bytes)
     {
       rvalue.storage = nullptr;
+      rvalue.bits = rvalue.bytes = 0;
     }
 
     ~bvector()
@@ -86,7 +88,7 @@ namespace bits
 
     constexpr size_type capacity() const noexcept { return this->bytes; }
 
-    constexpr size_type max_size() const noexcept { return _BITS_BVECTOR_MAX_SIZE_; }
+    constexpr size_type max_size() const noexcept { return __BITS_BVECTOR_MAX_SIZE__; }
 
     constexpr pointer data() const noexcept { return this->storage; }
 
@@ -96,9 +98,9 @@ namespace bits
     {
       if (this->storage == nullptr) { return 0; }
 
-      size_type tmp_bytes { this->bits >> 3 };
-      size_type bit_count {};
-      size_type byte;
+      size_type tmp_bytes { byte_division(this->bits) },
+                bit_count {},
+                byte;
 
       for (size_type i {}; i < tmp_bytes; ++i)
       {
@@ -109,11 +111,14 @@ namespace bits
         bit_count += byte;
       }
 
-      byte = this->bits & 0b00000111;
+      byte = byte_module(this->bits);
 
       for (byte_type i {}; i < byte; ++i)
       {
-        if (this->storage[tmp_bytes] & 0b10000000 >> (i & 0b00000111)) { ++bit_count; }
+        if (this->storage[tmp_bytes] & __BITS_BMASK_BIT__ >> byte_module(i))
+        {
+          ++bit_count;
+        }
       }
 
       return bit_count;
@@ -124,20 +129,19 @@ namespace bits
       if (this->storage == nullptr) { return; }
       else if (this->bits == 0) { this->clear(); return; }
 
-      const size_type tmp_capacity
-      { (this->bits >> 3) + (this->bits & 0b00000111 ? 1 : 0) };
+      const size_type tmp_bytes { calculate_capacity(this->bits) };
 
-      if (tmp_capacity < this->bytes)
+      if (tmp_bytes < this->bytes)
       {
         try
         {
-          pointer tmp_storage { this->umalloc.allocate(tmp_capacity) };
+          pointer tmp_storage { this->umalloc.allocate(tmp_bytes) };
 
-          (void) std::memcpy(tmp_storage, this->storage, tmp_capacity);
+          (void) std::memcpy(tmp_storage, this->storage, tmp_bytes);
           this->umalloc.deallocate(this->storage, this->bytes);
 
           this->storage = tmp_storage;
-          this->bytes = tmp_capacity;
+          this->bytes = tmp_bytes;
         }
         catch (std::bad_alloc &error) { throw; }
       }
@@ -145,18 +149,18 @@ namespace bits
 
     constexpr bool any() const noexcept
     {
-      const size_type tmp_capacity { this->bits >> 3 };
+      const size_type tmp_bytes { byte_division(this->bits) };
 
-      for (size_type i {}; i < tmp_capacity; ++i)
+      for (size_type i {}; i < tmp_bytes; ++i)
       {
         if (this->storage[i]) { return true; }
       }
 
-      const byte_type byte { byte_type (this->bits & 0b00000111) };
+      const size_type byte { byte_module(this->bits) };
 
-      for (byte_type i {}; i < byte; ++i)
+      for (size_type i {}; i < byte; ++i)
       {
-        if (this->storage[tmp_capacity] & 0b10000000 >> i) { return true; }
+        if (this->storage[tmp_bytes] & __BITS_BMASK_BIT__ >> i) { return true; }
       }
 
       return false;
@@ -164,18 +168,21 @@ namespace bits
 
     constexpr bool none() const noexcept
     {
-      const size_type tmp_capacity { this->bits >> 3 };
+      const size_type tmp_bytes { byte_division(this->bits) };
 
       for (size_type i {}; i < this->bytes; ++i)
       {
         if (this->storage[i]) { return false; }
       }
 
-      const byte_type byte { byte_type (this->bits & 0b00000111) };
+      const size_type byte { byte_module(this->bits) };
 
-      for (byte_type i {}; i < byte; ++i)
+      for (size_type i {}; i < byte; ++i)
       {
-        if (this->storage[tmp_capacity] & 0b10000000 >> i) { return false; }
+        if (this->storage[tmp_bytes] & __BITS_BMASK_BIT__ >> i)
+        {
+          return false;
+        }
       }
 
       return true;
@@ -198,18 +205,17 @@ namespace bits
       if (num_bits == 0) { this->clear(); return; }
       else if (num_bits == this->bits) { return; }
 
-      const size_type tmp_capacity
-      { (num_bits >> 3) + (num_bits & 0b00000111 ? 1 : 0) };
+      const size_type tmp_bytes { calculate_capacity(num_bits) };
 
       try
       {
-        pointer tmp_storage { this->umalloc.allocate(tmp_capacity) };
+        pointer tmp_storage { this->umalloc.allocate(tmp_bytes) };
 
         if (this->storage)
         {
           (void) std::memcpy(tmp_storage,
                              this->storage,
-                             std::min(this->bytes, tmp_capacity));
+                             min(this->bytes, tmp_bytes));
           this->umalloc.deallocate(this->storage, this->bytes);
         }
 
@@ -217,97 +223,93 @@ namespace bits
       }
       catch (std::bad_alloc &error) { throw; }
 
-      if (tmp_capacity > this->bytes && value)
+      if (tmp_bytes > this->bytes && value)
       {
         std::memset(this->storage + this->bytes,
-                    0b11111111,
-                    tmp_capacity - this->bytes);
+                    __BITS_BMASK_TRUE_BYTE__,
+                    tmp_bytes - this->bytes);
       }
 
       this->bits = num_bits;
-      this->bytes = tmp_capacity;
+      this->bytes = tmp_bytes;
     }
 
     void reserve(size_type num_bytes)
     {
-      if (num_bytes > _BITS_BVECTOR_MAX_CAPACITY_)
+      if (num_bytes > __BITS_BVECTOR_MAX_CAPACITY__ - this->bytes)
       {
         throw std::length_error ("bvector:reserve() -> invalid number of bytes");
       }
-      else if (num_bytes == 0 || this->bytes == _BITS_BVECTOR_MAX_CAPACITY_)
+      else if (num_bytes == 0 || this->bytes == __BITS_BVECTOR_MAX_CAPACITY__)
       {
         return;
       }
 
-      size_type tmp_capacity { this->bytes + num_bytes };
-
-      if (tmp_capacity > this->bytes)
+      size_type tmp_bytes { this->bytes + num_bytes };
+      
+      try
       {
-        try
+        pointer tmp_storage { this->umalloc.allocate(tmp_bytes) };
+        if (this->storage)
         {
-          pointer tmp_storage { this->umalloc.allocate(tmp_capacity) };
-
-          if (this->storage)
-          {
-            (void) std::memcpy(tmp_storage, this->storage, this->bytes);
-            this->umalloc.deallocate(this->storage, this->bytes);
-          }
-
-          this->storage = tmp_storage;
-          this->bytes = tmp_capacity;
+          (void) std::memcpy(tmp_storage,
+                             this->storage,
+                             this->bytes);
+          this->umalloc.deallocate(this->storage, this->bytes);
         }
-        catch (std::bad_alloc &error) { throw; }
+        this->storage = tmp_storage;
+        this->bytes = tmp_bytes;
       }
+      catch (std::bad_alloc &error) { throw; }
     }
 
     void push_back(bool value)
     {
-      if (this->bytes && this->bytes < _BITS_BVECTOR_MAX_CAPACITY_)
+      if (this->bytes && this->bytes < __BITS_BVECTOR_MAX_CAPACITY__)
       {
-        size_type tmp_capacity
-        { ((this->bits + 1) >> 3) + ((this->bits + 1) & 0b00000111 ? 1 : 0) };
+        size_type tmp_bytes { calculate_capacity(this->bits + 1) };
 
-        if (tmp_capacity > this->bytes)
+        if (tmp_bytes > this->bytes)
         {
-          if (this->bytes < 0x100000000)
+          if (this->bytes < __BITS_BVECTOR_MID_CAPACITY__)
           {
-            tmp_capacity = this->bytes;
+            tmp_bytes = this->bytes;
           }
-          else if (!(this->bytes + (tmp_capacity = this->bytes >> 1) <
-                _BITS_BVECTOR_MAX_CAPACITY_))
+          else if (!(this->bytes + (tmp_bytes = this->bytes >> 1) <
+                __BITS_BVECTOR_MAX_CAPACITY__))
           {
-            tmp_capacity = _BITS_BVECTOR_MAX_CAPACITY_ - this->bytes;
+            tmp_bytes = __BITS_BVECTOR_MAX_CAPACITY__ - this->bytes;
           }
 
-          try { this->reserve(tmp_capacity); }
+          try { this->reserve(tmp_bytes); }
           catch (std::bad_alloc &error) { throw; }
         }
 
         if (value)
         {
-          this->storage[this->bits >> 3] |=
-          (0b10000000 >> (this->bits & 0b00000111));
+          this->storage[byte_division(this->bits)] |=
+          __BITS_BMASK_BIT__ >> byte_module(this->bits);
         }
         else
         {
-          this->storage[this->bits >> 3] &=
-          ~(0b10000000 >> (this->bits & 0b00000111));
+          this->storage[byte_division(this->bits)] &=
+          ~(__BITS_BMASK_BIT__ >> byte_module(this->bits));
         }
         ++this->bits;
       }
       else if (this->bytes)
       {
-        if (this->bits < _BITS_BVECTOR_MAX_SIZE_)
+        if (this->bits < __BITS_BVECTOR_MAX_SIZE__)
         {
           if (value)
           {
-            this->storage[this->bits >> 3] |=
-            (0b10000000 >> (this->bits & 0b00000111));
+            this->storage[byte_division(this->bits)] |=
+            __BITS_BMASK_BIT__ >> byte_module(this->bits);
           }
           else
           {
-            this->storage[this->bits >> 3] &=
-            ~(0b10000000 >> (this->bits & 0b00000111));
+            this->storage[byte_division(this->bits)] &=
+            ~(__BITS_BMASK_BIT__ >> byte_module(this->bits));
           }
           ++this->bits;
         }
@@ -315,13 +317,13 @@ namespace bits
         {
           if (value)
           {
-            this->storage[(this->bits - 1) >> 3] |=
-            (0b10000000 >> ((this->bits - 1) & 0b00000111));
+            this->storage[byte_division(this->bits - 1)] |=
+            __BITS_BMASK_BIT__ >> byte_module(this->bits - 1);
           }
           else
           {
-            this->storage[(this->bits - 1) >> 3] &=
-            ~(0b10000000 >> ((this->bits - 1) & 0b00000111));
+            this->storage[byte_division(this->bits - 1)] &=
+            ~(__BITS_BMASK_BIT__ >> byte_module(this->bits - 1));
           }
         }
       }
@@ -330,7 +332,7 @@ namespace bits
         try { this->reserve(1); }
         catch (std::bad_alloc &error) { throw; }
         
-        if (value) { this->storage[0] |= 0b10000000; }
+        if (value) { this->storage[0] |= __BITS_BMASK_BIT__; }
         ++this->bits;
       }
     }
@@ -342,7 +344,8 @@ namespace bits
         throw std::out_of_range ("bvector:pop_back() -> invalid storage size");
       }
       
-      const bool value { bool (this->storage[this->bits >> 3] & 0b10000000 >> (this->bits & 0b00000111)) };
+      const bool value
+      { bool (this->storage[byte_division(this->bits)] & __BITS_BMASK_BIT__ >> byte_module(this->bits)) };
       --this->bits;
       return value;
     }
@@ -360,11 +363,11 @@ namespace bits
       
       if (value)
       {
-        this->storage[index >> 3] |= (0b10000000 >> (index & 0b00000111));
+        this->storage[byte_division(index)] |= __BITS_BMASK_BIT__ >> byte_module(index);
       }
       else
       {
-        this->storage[index >> 3] &= ~(0b10000000 >> (index & 0b00000111));
+        this->storage[byte_division(index)] &= ~(__BITS_BMASK_BIT__ >> byte_module(index));
       }
       return *this;
     }
@@ -377,8 +380,8 @@ namespace bits
       }
 
       std::memset(this->storage,
-                  0b11111111,
-                  (this->bits >> 3) + (this->bits & 0b00000111 ? 1 : 0));
+                  __BITS_BMASK_TRUE_BYTE__,
+                  calculate_capacity(this->bits));
       return *this;
     }
 
@@ -393,7 +396,7 @@ namespace bits
         throw std::out_of_range ("bvector:reset(i32) -> invalid storage pointer (nullptr)");
       }
 
-      this->storage[index >> 3] &= ~(0b10000000 >> (index & 0b00000111));
+      this->storage[byte_division(index)] &= ~(__BITS_BMASK_BIT__ >> byte_module(index));
       return *this;
     }
 
@@ -405,8 +408,8 @@ namespace bits
       }
 
       std::memset(this->storage,
-                  0b00000000,
-                  (this->bits >> 3) + (this->bits & 0b00000111 ? 1 : 0));
+                  __BITS_BMASK_FALSE_BYTE__,
+                  calculate_capacity(this->bits));
       return *this;
     }
 
@@ -421,7 +424,7 @@ namespace bits
         throw std::out_of_range ("bvector:flip(i32) -> invalid storage pointer (nullptr)");
       }
 
-      this->storage[index >> 3] ^= (0b10000000 >> (index & 0b00000111));
+      this->storage[byte_division(index)] ^= __BITS_BMASK_BIT__ >> byte_module(index);
 
       return *this;
     }
@@ -433,12 +436,11 @@ namespace bits
         throw std::out_of_range ("bvector:flip() -> invalid storage pointer (nullptr)");
       }
 
-      const size_type tmp_capacity
-      { (this->bits >> 3) + (this->bits & 0b00000111 ? 1 : 0) };
+      const size_type tmp_capacity { calculate_capacity(this->bits) };
 
       for (size_type i {}; i < tmp_capacity; ++i)
       {
-        this->storage[i] ^= 0b11111111;
+        this->storage[i] ^= __BITS_BMASK_TRUE_BYTE__;
       }
 
       return *this;
@@ -454,9 +456,9 @@ namespace bits
     }
     
     // Element access
-    bool operator [] (i64 index) const noexcept
+    bool operator [] (size_type index) const noexcept
     {
-      return this->storage[index >> 3] & 0b10000000 >> (index & 0b00000111);
+      return this->storage[byte_division(index)] & __BITS_BMASK_BIT__ >> byte_module(index);
     }
 
     bool front() const
@@ -466,7 +468,7 @@ namespace bits
         throw std::out_of_range ("bvector:front() -> invalid storage pointer (nullptr)");
       }
 
-      return this->storage[0] & 0b10000000 ;
+      return this->storage[0] & __BITS_BMASK_BIT__ ;
     }
 
     bool back() const
@@ -476,18 +478,18 @@ namespace bits
         throw std::out_of_range ("bvector:back() -> invalid storage pointer (nullptr)");
       }
 
-      return this->storage[(this->bits - 1) >> 3] &
-             (0b10000000 >> ((this->bits - 1) & 0b00000111));
+      return this->storage[byte_division(this->bits - 1)] &
+             __BITS_BMASK_BIT__ >> byte_module(this->bits - 1);
     }
 
-    bool at(i64 index) const
+    bool at(size_type index) const
     {
-      if (index < 0 || index >= this->bits || this->storage == nullptr)
+      if (index >= this->bits || this->storage == nullptr)
       {
-        throw std::out_of_range ("bvector:at(i32) -> index is out of range");
+        throw std::out_of_range ("bvector:at(size_type) -> index is out of range");
       }
 
-      return this->storage[index >> 3] & (0b10000000 >> (index & 0b00000111));
+      return this->storage[byte_division(index)] & __BITS_BMASK_BIT__ >> byte_module(index);
     }
     
     // Operations
@@ -515,13 +517,14 @@ namespace bits
     {
       if (this->storage)
       {
-        this->umalloc(this->storage, this->bytes);
+        this->umalloc.deallocate(this->storage, this->bytes);
         this->storage = nullptr;
       }
 
       std::swap(this->storage, rvalue.storage);
       this->bits = rvalue.bits;
       this->bytes = rvalue.bytes;
+      rvalue.bits = rvalue.bytes = 0;
       return *this;
     }
 
@@ -583,18 +586,17 @@ namespace bits
 
         return temp;
       }
-      catch (std::bad_alloc  &error) { throw; }
+      catch (std::bad_alloc &error) { throw; }
     }
 
-    /*bvector &operator <<= (i32 shift)
+    /*bvector &operator <<= (size_type shift)
     {
-      if (shift < 0)
+      if (shift > _BITS_BVECTOR_MAX_SIZE_)
       {
-        throw std::invalid_argument ("bvector:bitwise and assignment operator(<<=) -> invalid shift");
+        throw std::invalid_argument ("bvector:operator(<<=) -> invalid shift");
       }
       else if (shift)
       {
-        
       }
 
       return *this;
@@ -611,7 +613,7 @@ namespace bits
 
       for (size_type i {}; i < this->bits; ++i)
       {
-        if (this->storage[i >> 3] & 0b10000000 >> (i & 0b00000111))
+        if (this->storage[byte_division(i)] & __BITS_BMASK_BIT__ >> byte_module(i))
         {
           storage_binary.push_back('1');
         }
@@ -642,15 +644,21 @@ bool operator == (const bits::bvector<allocator_type> &lhs,
 }
 
 template<class allocator_type = std::allocator<std::uint8_t>>
-bool operator != (const bits::bvector<allocator_type> &lhs,
-                  const bits::bvector<allocator_type> &rhs)
+bool operator !=
+(
+  const bits::bvector<allocator_type> &lhs,
+  const bits::bvector<allocator_type> &rhs
+)
 {
   return !(lhs == rhs);
 }
 
 template<class allocator_type = std::allocator<std::uint8_t>>
-bits::bvector<allocator_type> operator & (const bits::bvector<allocator_type> &lhs,
-                                          const bits::bvector<allocator_type> &rhs)
+bits::bvector<allocator_type> operator &
+(
+  const bits::bvector<allocator_type> &lhs,
+  const bits::bvector<allocator_type> &rhs
+)
 {
   try
   {
@@ -662,8 +670,11 @@ bits::bvector<allocator_type> operator & (const bits::bvector<allocator_type> &l
 }
 
 template<class allocator_type = std::allocator<std::uint8_t>>
-bits::bvector<allocator_type> operator | (const bits::bvector<allocator_type> &lhs,
-                                          const bits::bvector<allocator_type> &rhs)
+bits::bvector<allocator_type> operator |
+(
+  const bits::bvector<allocator_type> &lhs,
+  const bits::bvector<allocator_type> &rhs
+)
 {
   try
   {
@@ -675,8 +686,11 @@ bits::bvector<allocator_type> operator | (const bits::bvector<allocator_type> &l
 }
 
 template<class allocator_type = std::allocator<std::uint8_t>>
-bits::bvector<allocator_type> operator ^ (const bits::bvector<allocator_type> &lhs,
-                                          const bits::bvector<allocator_type> &rhs)
+bits::bvector<allocator_type> operator ^
+(
+  const bits::bvector<allocator_type> &lhs,
+  const bits::bvector<allocator_type> &rhs
+)
 {
   try
   {
