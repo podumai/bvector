@@ -263,7 +263,6 @@ namespace bits
           storage[byte_division(bits)] |= __BMASK_BIT__ >> byte_module(bits);
         else
           storage[byte_division(bits)] &= ~(__BMASK_BIT__ >> byte_module(bits));
-        //storage[byte_division(bits)] |= (value & __BMASK_BIT__) >> byte_module(bits);
 
         ++bits;
       }
@@ -544,16 +543,16 @@ bool operator == (const bits::bvector<allocator_type>& lhs,
 
 template<class allocator_type = std::allocator<std::uint8_t>>
 [[nodiscard]]
-bool operator != (const bits::bvector<allocator_type> &lhs,
-                  const bits::bvector<allocator_type> &rhs)
+bool operator != (const bits::bvector<allocator_type>& lhs,
+                  const bits::bvector<allocator_type>& rhs)
 {
   return !(lhs == rhs);
 }
 
 template<class allocator_type = std::allocator<std::uint8_t>>
 [[nodiscard]]
-bits::bvector<allocator_type> operator & (const bits::bvector<allocator_type> &lhs,
-                                          const bits::bvector<allocator_type> &rhs )
+bits::bvector<allocator_type> operator & (const bits::bvector<allocator_type>& lhs,
+                                          const bits::bvector<allocator_type>& rhs )
 {
   try
   {
