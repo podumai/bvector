@@ -1,0 +1,3 @@
+file(REMOVE_RECURSE
+  "libBITS_BVECTOR_LIB.a"
+)
