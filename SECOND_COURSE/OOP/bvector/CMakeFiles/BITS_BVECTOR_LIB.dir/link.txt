@@ -1,2 +1,0 @@
-/usr/bin/ar qc libBITS_BVECTOR_LIB.a CMakeFiles/BITS_BVECTOR_LIB.dir/source/bvector.cpp.o
-/usr/bin/ranlib libBITS_BVECTOR_LIB.a
