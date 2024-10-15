@@ -5,6 +5,10 @@
 #include <cstring>
 #include <memory>
 
+/*
+ * Test user allocator for template parameter
+*/
+
 namespace memory
 {
 
@@ -14,14 +18,10 @@ namespace memory
   public:
     T* allocate(std::size_t blocks)
     {
-      //if (blocks == 0) return nullptr;
-
-      //T* pointer { static_cast<T*> (std::calloc(blocks, sizeof(T))) };
       T* pointer { static_cast<T*> (std::malloc(sizeof(T) * blocks)) };
 
       if (pointer == nullptr) throw std::bad_alloc();
-
-      //std::memset(pointer, 0, blocks * sizeof(T));
+      
       return pointer;
     }
     
