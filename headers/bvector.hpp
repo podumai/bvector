@@ -33,12 +33,11 @@ namespace bits
   public:
     using pointer   = std::uint8_t*;
     using size_type = std::size_t;
-    using byte_type = std::uint8_t;
   private:
     allocator_type xmalloc;
     pointer        storage;
-    size_type      bits,
-                   bytes;
+    size_type      bits;
+    size_type      bytes;
   public:
     bvector() noexcept : storage (nullptr), bits (0), bytes (0) { }
 
