@@ -1,10 +1,7 @@
 #include <iostream>
-#include <vector>
 #include <iomanip>
 #include <string>
-#include <cstddef>
 #include <cinttypes>
-#include "xallocator.hpp"
 #include "bvector.hpp"
 
 std::int32_t main()
@@ -15,7 +12,7 @@ std::int32_t main()
 
   std::cout << SIZE << std::endl;
 
-  bits::bvector test;
+  bit::bvector test;
   for (std::size_t i {}; i != SIZE; ++i)
     test.push_back(true);
 
