@@ -6,13 +6,13 @@
 #include <cstring>
 
 #if __WORDSIZE == 64
-#define __BITS_BVECTOR_MAX_SIZE__      (0x2000000000)
-#define __BITS_BVECTOR_MAX_CAPACITY__  (0x400000000)
-#define __BITS_BVECTOR_MID_CAPACITY__  (0x100000000)
+#define __BITS_BVECTOR_MAX_SIZE__      (0x2000000000ULL)
+#define __BITS_BVECTOR_MAX_CAPACITY__  (0x400000000ULL)
+#define __BITS_BVECTOR_MID_CAPACITY__  (0x100000000ULL)
 #else
-#define __BITS_BVECTOR_MAX_SIZE__     (0x1fffffff)
-#define __BITS_BVECTOR_MAX_CAPACITY__ (0x4000000)
-#define __BITS_BVECTOR_MID_CAPACITY__ (0x1000000)
+#define __BITS_BVECTOR_MAX_SIZE__     (0x20000000ULL)
+#define __BITS_BVECTOR_MAX_CAPACITY__ (0x4000000ULL)
+#define __BITS_BVECTOR_MID_CAPACITY__ (0x1000000ULL)
 #endif
 
 #define BYTE_DIVISION(bits) ((bits) >> 3)
@@ -109,7 +109,7 @@ namespace bit
     [[nodiscard]]
     size_type count() const noexcept
     {
-      if (m_storage == EMPTY_STORAGE) return 0;
+      if (m_storage == EMPTY_STORAGE) return ZERO_VALUE;
 
       pointer end { m_storage + m_bytes };
       size_type bit_count {};
@@ -159,14 +159,14 @@ namespace bit
       pointer end { m_storage + m_bytes };
 
       for (pointer begin { m_storage }; begin != end; ++begin)
-        if (*begin) return BIT_SET;
+        if (*begin) return ANY_SET;
 
       const size_type remaining_bits { BYTE_MODULE(m_bits) };
 
       for (size_type current_bit {}; current_bit != remaining_bits; ++current_bit)
-        if (*end & BMASK::BIT >> current_bit) return BIT_SET;
+        if (*end & BMASK::BIT >> current_bit) return ANY_SET;
 
-      return BIT_UNSET;
+      return NONE_SET;
     }
 
     [[nodiscard]]
@@ -217,7 +217,7 @@ namespace bit
 
         m_storage = tmp_ptr;
       }
-      catch (std::bad_alloc& error) { return; }
+      catch (std::bad_alloc& error) { throw; }
       
       if (m_bytes < new_size && value == BIT_SET)
         std::memset(m_storage + m_bytes, BMASK::SET, new_size - m_bytes);
@@ -310,7 +310,7 @@ namespace bit
     bit_state pop_back()
     {
       if (m_bits == ZERO_VALUE)
-        throw std::out_of_range("bvector:pop_back() -> invalid storage size");
+        throw std::out_of_range("bvector:pop_back() -> invalid number of bits");
 
       --m_bits;
       return m_storage[BYTE_DIVISION(m_bits)] & BMASK::BIT >> BYTE_MODULE(m_bits);
@@ -320,8 +320,6 @@ namespace bit
     {
       if (index >= m_bits)
         throw std::out_of_range("bvector:set(size_type, bit_state) -> index is out of range");
-      else if (m_storage == EMPTY_STORAGE)
-        throw std::out_of_range("bvector:set(size_type, bit_state) -> invalid storage pointer (nullptr)");
 
       if (value == BIT_SET)
         m_storage[BYTE_DIVISION(index)] |= BMASK::BIT >> BYTE_MODULE(index);
@@ -333,8 +331,8 @@ namespace bit
 
     reference set()
     {
-      if (m_storage == EMPTY_STORAGE)
-        throw std::out_of_range("bvector:set() -> invalid storage pointer (nullptr)");
+      if (m_bits == ZERO_VALUE)
+        throw std::out_of_range("bvector:set() -> invalid number of bits");
 
       std::memset(m_storage, BMASK::SET, CALCULATE_CAPACITY(m_bits));
       return *this;
@@ -344,8 +342,6 @@ namespace bit
     {
       if (index >= m_bits)
         throw std::out_of_range("bvector:reset(size_type) -> index is out of range");
-      else if (m_storage == EMPTY_STORAGE)
-        throw std::out_of_range("bvector:reset(size_type) -> invalid storage pointer (nullptr)");
 
       m_storage[BYTE_DIVISION(index)] &= ~(BMASK::BIT >> BYTE_MODULE(index));
       return *this;
@@ -353,8 +349,8 @@ namespace bit
     
     reference reset()
     {
-      if (m_storage == EMPTY_STORAGE)
-        throw std::out_of_range("bvector:reset() -> invalid storage pointer (nullptr)");
+      if (m_bits == ZERO_VALUE)
+        throw std::out_of_range("bvector:reset() -> invalid number of bits");
 
       std::memset(m_storage, BMASK::RESET, CALCULATE_CAPACITY(m_bits));
       return *this;
@@ -364,8 +360,6 @@ namespace bit
     {
       if (index >= m_bits)
         throw std::out_of_range("bvector:flip(size_type) -> index is out of range");
-      else if (m_storage == EMPTY_STORAGE)
-        throw std::out_of_range("bvector:flip(size_type) -> invalid storage pointer (nullptr)");
 
       m_storage[BYTE_DIVISION(index)] ^= BMASK::BIT >> BYTE_MODULE(index);
       return *this;
@@ -373,8 +367,8 @@ namespace bit
 
     reference flip()
     {
-      if (m_storage == EMPTY_STORAGE)
-        throw std::out_of_range("bvector:flip() -> invalid storage pointer (nullptr)");
+      if (m_bits == ZERO_VALUE)
+        throw std::out_of_range("bvector:flip() -> invalid number of bits");
 
       pointer end { m_storage + CALCULATE_CAPACITY(m_bits) };
 
@@ -403,8 +397,8 @@ namespace bit
     [[nodiscard]]
     bool front() const
     {
-      if (m_storage == EMPTY_STORAGE)
-        throw std::out_of_range("bvector:front() -> invalid storage pointer (nullptr)");
+      if (m_bits == ZERO_VALUE)
+        throw std::out_of_range("bvector:front() -> invalid number of bits");
 
       return *m_storage & BMASK::BIT;
     }
@@ -412,8 +406,8 @@ namespace bit
     [[nodiscard]]
     bit_state back() const
     {
-      if (m_storage == EMPTY_STORAGE)
-        throw std::out_of_range("bvector:back() -> invalid storage pointer (nullptr)");
+      if (m_bits == ZERO_VALUE)
+        throw std::out_of_range("bvector:back() -> invalid number of bits");
 
       return m_storage[BYTE_DIVISION(m_bits - 1)] & BMASK::BIT >> BYTE_MODULE(m_bits - 1);
     }
